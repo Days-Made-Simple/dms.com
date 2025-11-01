@@ -9,17 +9,87 @@
 
     html, body {
       height: 100%;
-      overflow: hidden;
       font-family: "Helvetica Neue", Arial, sans-serif;
       background-color: #000;
       color: #fff;
+      overflow: hidden;
     }
 
+    /* ---------------- Navbar ---------------- */
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: #fff;
+      color: #111;
+      z-index: 10;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .navbar .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .navbar .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+    }
+
+    .navbar .nav-links li a {
+      text-decoration: none;
+      color: #111;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .navbar .nav-links li a:hover,
+    .navbar .nav-links li a.active {
+      color: #00bfff;
+    }
+
+    .navbar .menu-toggle {
+      display: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #111;
+    }
+
+    @media (max-width: 768px) {
+      .navbar .nav-links {
+        position: fixed;
+        top: 60px;
+        right: -100%;
+        flex-direction: column;
+        background: #fff;
+        width: 200px;
+        height: calc(100% - 60px);
+        gap: 1.5rem;
+        padding: 1rem;
+        transition: right 0.3s ease;
+      }
+      .navbar .nav-links.show {
+        right: 0;
+      }
+      .navbar .menu-toggle {
+        display: block;
+      }
+    }
+
+    /* ---------------- Hero Section ---------------- */
     .hero {
       position: relative;
       width: 100%;
       height: 100vh;
       overflow: hidden;
+      padding-top: 60px; /* navbar space */
     }
 
     .slide {
@@ -90,7 +160,7 @@
       color: #000;
     }
 
-    /* Vertical Dots on Right */
+    /* Vertical Dots */
     .dots {
       position: absolute;
       top: 50%;
@@ -116,7 +186,6 @@
       transform: scale(1.2);
     }
 
-    /* Smooth scroll hint arrow */
     .scroll-indicator {
       position: absolute;
       bottom: 2rem;
@@ -134,7 +203,7 @@
       50% { opacity: 1; transform: translate(-50%, 10px); }
     }
 
-    /* White section after hero */
+    /* White section */
     .white-section {
       background: #fff;
       color: #111;
@@ -157,8 +226,20 @@
   </style>
 </head>
 <body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">YourBrand</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="menu-toggle">&#9776;</div>
+  </nav>
+
+  <!-- Hero Section -->
   <div class="hero">
-    <!-- Slide 1 -->
     <div class="slide active">
       <video src="video1.mp4" autoplay muted loop playsinline></video>
       <div class="caption">
@@ -166,8 +247,6 @@
         <a href="#">Our Mission</a>
       </div>
     </div>
-
-    <!-- Slide 2 -->
     <div class="slide">
       <video src="video2.mp4" autoplay muted loop playsinline></video>
       <div class="caption">
@@ -175,8 +254,6 @@
         <a href="#">Our Technologies</a>
       </div>
     </div>
-
-    <!-- Slide 3 -->
     <div class="slide">
       <video src="video3.mp4" autoplay muted loop playsinline></video>
       <div class="caption">
@@ -184,8 +261,6 @@
         <a href="#">AI at YourBrand</a>
       </div>
     </div>
-
-    <!-- Slide 4 -->
     <div class="slide">
       <video src="video4.mp4" autoplay muted loop playsinline></video>
       <div class="caption">
@@ -204,7 +279,7 @@
     <div class="scroll-indicator">Scroll ↓</div>
   </div>
 
-  <!-- White section after hero -->
+  <!-- White section -->
   <div class="white-section">
     <h1>Meta-style White Section</h1>
     <p>This section appears only after you scroll through all hero slides.</p>
@@ -215,9 +290,13 @@
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.dot');
     const whiteSection = document.querySelector('.white-section');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+
     let current = 0;
     let isScrolling = false;
     let heroFinished = false;
+    const slideInterval = 5000; // 5 seconds
 
     function showSlide(index) {
       slides.forEach((s, i) => s.classList.toggle('active', i === index));
@@ -236,7 +315,7 @@
       heroFinished = false;
       document.body.classList.remove('allow-scroll');
       whiteSection.classList.remove('visible');
-      showSlide(slides.length - 1); // Show last hero slide
+      showSlide(slides.length - 1);
     }
 
     // Dots click
@@ -251,57 +330,29 @@
 
       if (!heroFinished) {
         e.preventDefault();
-        if (e.deltaY > 0) { // Scroll down
-          if (current < slides.length - 1) {
-            current++;
-            showSlide(current);
-          } else {
-            showWhiteSection();
-          }
-        } else { // Scroll up
-          if (current > 0) {
-            current--;
-            showSlide(current);
-          }
-        }
-      } else { // In white section
-        if (e.deltaY < 0 && window.scrollY === 0) {
-          hideWhiteSection();
+        if (e.deltaY > 0) {
+          if (current < slides.length - 1) showSlide(current + 1);
+          else showWhiteSection();
+        } else if (e.deltaY < 0) {
+          if (current > 0) showSlide(current - 1);
         }
       }
 
-      setTimeout(() => { isScrolling = false; }, 1200);
+      setTimeout(() => { isScrolling = false; }, 500);
     }, { passive: false });
 
-    // Keyboard navigation
-    window.addEventListener('keydown', (e) => {
-      if (isScrolling) return;
-      isScrolling = true;
-
-      if (!heroFinished) {
-        if (e.key === 'ArrowDown') {
-          if (current < slides.length - 1) {
-            current++;
-            showSlide(current);
-          } else {
-            showWhiteSection();
-          }
-        }
-        if (e.key === 'ArrowUp') {
-          if (current > 0) {
-            current--;
-            showSlide(current);
-          }
-        }
-      } else { // In white section
-        if (e.key === 'ArrowUp' && window.scrollY === 0) {
-          hideWhiteSection();
-        }
-      }
-
-      setTimeout(() => { isScrolling = false; }, 1200);
+    // Mobile menu toggle
+    menuToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('show');
     });
+
+    // Autoplay slides
+    setInterval(() => {
+      if (!heroFinished) {
+        if (current < slides.length - 1) showSlide(current + 1);
+        else showWhiteSection();
+      }
+    }, slideInterval);
   </script>
 </body>
 </html>
-
