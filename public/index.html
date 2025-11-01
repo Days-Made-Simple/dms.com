@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YourBrand | About</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+    }
+
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      pointer-events: none;
+    }
+
+    .slide video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(65%);
+      transform: scale(1.05);
+      transition: transform 2s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      z-index: 2;
+      pointer-events: all;
+    }
+
+    .slide.active video {
+      transform: scale(1);
+    }
+
+    .caption {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 1s ease, transform 1s ease;
+      max-width: 700px;
+      z-index: 3;
+    }
+
+    .slide.active .caption {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .caption h2 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      line-height: 1.2;
+    }
+
+    .caption a {
+      text-decoration: none;
+      color: #fff;
+      border: 1px solid #fff;
+      padding: 0.8rem 1.8rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .caption a:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    /* Vertical Dots on Right */
+    .dots {
+      position: absolute;
+      top: 50%;
+      right: 3rem;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 5;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .dot.active {
+      background: #fff;
+      transform: scale(1.2);
+    }
+
+    /* Smooth scroll hint arrow */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.8);
+      animation: fadeMove 2s infinite;
+      z-index: 4;
+    }
+
+    @keyframes fadeMove {
+      0%, 100% { opacity: 0; transform: translate(-50%, 0); }
+      50% { opacity: 1; transform: translate(-50%, 10px); }
+    }
+
+    /* White section after hero */
+    .white-section {
+      background: #fff;
+      color: #111;
+      min-height: 100vh;
+      padding: 100px 20px;
+      font-size: 1.5rem;
+      line-height: 1.6;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .white-section.visible {
+      opacity: 1;
+    }
+
+    /* Enable scrolling after hero */
+    body.allow-scroll {
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <!-- Slide 1 -->
+    <div class="slide active">
+      <video src="video1.mp4" autoplay muted loop playsinline></video>
+      <div class="caption">
+        <h2>We’re building the future of human connection</h2>
+        <a href="#">Our Mission</a>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="slide">
+      <video src="video2.mp4" autoplay muted loop playsinline></video>
+      <div class="caption">
+        <h2>And the technologies that make it possible</h2>
+        <a href="#">Our Technologies</a>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="slide">
+      <video src="video3.mp4" autoplay muted loop playsinline></video>
+      <div class="caption">
+        <h2>Our innovations give people new ways to connect</h2>
+        <a href="#">AI at YourBrand</a>
+      </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="slide">
+      <video src="video4.mp4" autoplay muted loop playsinline></video>
+      <div class="caption">
+        <h2>We’re making a positive impact worldwide</h2>
+        <a href="#">Our Impact</a>
+      </div>
+    </div>
+
+    <div class="dots">
+      <div class="dot active" data-index="0"></div>
+      <div class="dot" data-index="1"></div>
+      <div class="dot" data-index="2"></div>
+      <div class="dot" data-index="3"></div>
+    </div>
+
+    <div class="scroll-indicator">Scroll ↓</div>
+  </div>
+
+  <!-- White section after hero -->
+  <div class="white-section">
+    <h1>Meta-style White Section</h1>
+    <p>This section appears only after you scroll through all hero slides.</p>
+    <p>Here you can add your about text, links, and other content.</p>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    const whiteSection = document.querySelector('.white-section');
+    let current = 0;
+    let isScrolling = false;
+    let heroFinished = false;
+
+    function showSlide(index) {
+      slides.forEach((s, i) => s.classList.toggle('active', i === index));
+      dots.forEach((d, i) => d.classList.toggle('active', i === index));
+      current = index;
+    }
+
+    function showWhiteSection() {
+      heroFinished = true;
+      document.body.classList.add('allow-scroll');
+      whiteSection.classList.add('visible');
+      whiteSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideWhiteSection() {
+      heroFinished = false;
+      document.body.classList.remove('allow-scroll');
+      whiteSection.classList.remove('visible');
+      showSlide(slides.length - 1); // Show last hero slide
+    }
+
+    // Dots click
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => showSlide(parseInt(dot.dataset.index)));
+    });
+
+    // Scroll handling
+    window.addEventListener('wheel', (e) => {
+      if (isScrolling) return;
+      isScrolling = true;
+
+      if (!heroFinished) {
+        e.preventDefault();
+        if (e.deltaY > 0) { // Scroll down
+          if (current < slides.length - 1) {
+            current++;
+            showSlide(current);
+          } else {
+            showWhiteSection();
+          }
+        } else { // Scroll up
+          if (current > 0) {
+            current--;
+            showSlide(current);
+          }
+        }
+      } else { // In white section
+        if (e.deltaY < 0 && window.scrollY === 0) {
+          hideWhiteSection();
+        }
+      }
+
+      setTimeout(() => { isScrolling = false; }, 1200);
+    }, { passive: false });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (isScrolling) return;
+      isScrolling = true;
+
+      if (!heroFinished) {
+        if (e.key === 'ArrowDown') {
+          if (current < slides.length - 1) {
+            current++;
+            showSlide(current);
+          } else {
+            showWhiteSection();
+          }
+        }
+        if (e.key === 'ArrowUp') {
+          if (current > 0) {
+            current--;
+            showSlide(current);
+          }
+        }
+      } else { // In white section
+        if (e.key === 'ArrowUp' && window.scrollY === 0) {
+          hideWhiteSection();
+        }
+      }
+
+      setTimeout(() => { isScrolling = false; }, 1200);
+    });
+  </script>
+</body>
+</html>
+
