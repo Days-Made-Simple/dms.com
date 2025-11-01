@@ -32,6 +32,13 @@
       z-index: 10;
     }
 
+    .logo-img {
+      width: 120px;       /* change this to your preferred size */
+      height: auto;       /* keeps the aspect ratio */
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
     .navbar-left {
       display: flex;
       align-items: center;
@@ -69,8 +76,8 @@
     }
 
     .nav-buttons li a img {
-      width: 40px;
-      height: 40px;
+      width: auto;
+      max-height: 40px;
       cursor: pointer;
       transition: transform 0.3s, filter 0.3s;
     }
