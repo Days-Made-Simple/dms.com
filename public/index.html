@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Days Made Simple | Innovation & Creativity</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -12,16 +12,12 @@
  }
 
   html, body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    height: calc(var(--vh, 1vh) * 100);
+    height: auto;
     width: 100%;
     font-family:"Helvetica Neue", Arial, sans-serif;
     background:#000;
     color:#fff;
     overflow-x: hidden;
-    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -486,13 +482,14 @@ document.querySelectorAll('.mobile-buttons img').forEach(button => {
 setVh();
 
 // Recalculate on resize or orientation change
+if (window.visualViewport) {
+  ['resize', 'scroll'].forEach(evt => {
+    window.visualViewport.addEventListener(evt, setVh);
+  });
+}
+
 window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
-
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', setVh);
-  window.visualViewport.addEventListener('scroll', setVh);
-}
 </script>
 </body>
 </html>
