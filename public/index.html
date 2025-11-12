@@ -373,7 +373,7 @@ function unlockScroll(){
 // Lock scroll
 function lockScroll() {
   if (heroFinished) return;
-  document.querySelector('.hero').style.overflow = 'hidden';
+  document.body.style.overflowY = 'hidden';
   showSlide(current);
 }
 
