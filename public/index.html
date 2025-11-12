@@ -363,8 +363,8 @@ function showSlide(index){
 function unlockScroll() {
   if(heroFinished) return;
   heroFinished = true;
-  document.querySelector('.hero').style.overflow = '';
   document.body.style.overflowY = 'auto';
+  whiteSection.classList.add('visible');
   navbar.classList.add('scrolled');
   clearInterval(autoSlideTimer);
 }
@@ -372,8 +372,8 @@ function unlockScroll() {
 // Lock scroll
 function lockScroll() {
   if (heroFinished) return;
-  document.querySelector('.hero').style.overflow = 'hidden';
-  document.querySelector('.hero').style.height = '100vh';
+  document.body.style.overflowY = 'hidden';
+  showSlide(current);
 }
 
 // Auto-slide
