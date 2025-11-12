@@ -13,11 +13,12 @@
 
   html, body {
     height: 100%;
+    width: 100%;
     margin: 0;
     font-family:"Helvetica Neue", Arial, sans-serif;
     background:#000;
     color:#fff;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -183,7 +184,6 @@
     position:relative;
     width:100%;
     height: calc(var(--vh, 1vh) * 100);
-    padding-bottom: env(safe-area-inset-bottom);
     min-height: 100dvh;
     overflow:hidden;
     padding-top:60px;
