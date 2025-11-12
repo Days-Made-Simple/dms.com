@@ -360,12 +360,11 @@ function showSlide(index){
   current = index;
 }
 
-// Unlock scroll
-function unlockScroll(){
+function unlockScroll() {
   if(heroFinished) return;
   heroFinished = true;
+  document.querySelector('.hero').style.overflow = '';
   document.body.style.overflowY = 'auto';
-  whiteSection.classList.add('visible');
   navbar.classList.add('scrolled');
   clearInterval(autoSlideTimer);
 }
@@ -373,8 +372,8 @@ function unlockScroll(){
 // Lock scroll
 function lockScroll() {
   if (heroFinished) return;
-  document.body.style.overflowY = 'hidden';
-  showSlide(current);
+  document.querySelector('.hero').style.overflow = 'hidden';
+  document.querySelector('.hero').style.height = '100vh';
 }
 
 // Auto-slide
