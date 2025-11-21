@@ -63,12 +63,11 @@
 
   /* popup menu (desktop) */
   .popup-menu.fullwidth {
-    position: absolute;
-    top: var(--nav-height);
-    left: 50%;
+    position: fixed;
+    top: 60px;
+    left: 0;
     transform: translate(-50%, -12px);
-    min-width: 260px;
-    max-width: 92vw;
+    width: 100%;
     background:#f2f2f7;
     padding: .85rem;
     border-radius: 10px;
@@ -76,7 +75,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 160ms ease, transform 160ms ease;
-    z-index: 220;
+    z-index: 999;
   }
   .popup-menu.fullwidth.show {
     opacity:1;
