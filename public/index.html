@@ -37,6 +37,13 @@
   .navbar-left {
     display:flex; align-items:center; gap:1rem;
   }
+  
+  .navbar-left .logo {
+    width: 55px;
+    height: 55px;
+    flex-shrink: 0; /* prevent it from growing */
+	
+  }
   .menu-toggle { display:none; font-size: 1.6rem; user-select:none; cursor:pointer; color:#111; }
   .logo { width:52px; height:52px; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   .logo img { width:100%; height:100%; object-fit:contain; display:block; }
@@ -107,6 +114,24 @@
       z-index: 200;
     }
     .nav-links.show { left: 0; }
+    
+    .navbar-left .nav-links {
+        position: fixed;
+        top: 0;
+        left: -100%;  /* offscreen by default */
+        width: 260px;
+        height: 100vh; 
+        background: rgba(242,242,247);
+        display: flex;
+        flex-direction: column;
+        padding-top: 80px; /* space for logo + X button */
+        transition: left 0.4s ease;
+        z-index: 150;
+    }
+
+    .navbar-left .nav-links.show {
+        left: 0; /* slide in when hamburger clicked */
+    }
 
     .nav-links .drawer-header {
       position: relative;
