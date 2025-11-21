@@ -1,51 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Days Made Simple | Innovation & Creativity</title>
 <style>
-  /* ---------------- Reset & root ---------------- */
-  * { box-sizing: border-box; margin:0; padding:0; }
-  :root { --vh: 1vh; --nav-height: 60px; --accent: #00bfff; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root { --vh: 1vh; }
 
   html, body {
     height:100%;
     width:100%;
     background:#000;
     color:#000;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    overflow-x: auto;
-    overflow-y: hidden;
+    font-family:"Helvetica Neue", Arial, sans-serif;
+    overflow-x:hidden;
+    /* We'll control vertical overflow from JS while hero is locked */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
   }
 
   /* ---------------- Navbar ---------------- */
   .navbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: var(--nav-height);
-    display:flex; align-items:center; justify-content:space-between;
-    padding: 0 1.25rem;
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:60px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 1.25rem;
     background: rgba(255,255,255,0.925);
     color:#111;
-    z-index: 110;
     backdrop-filter: blur(10px);
-    transition: background .28s ease;
+    z-index:100;
+    transition: background 0.35s ease;
   }
-  .navbar.scrolled { background: rgba(255,255,255,0.96); }
+  .navbar.scrolled { background: rgba(255,255,255,0.95); }
 
   .navbar-left {
-    display:flex; align-items:center; gap:1rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
   }
-  
-  .navbar-left .logo {
-    width: 55px;
-    height: 55px;
-    flex-shrink: 0; /* prevent it from growing */
-	
-  }
-  .menu-toggle { display:none; font-size: 1.6rem; user-select:none; cursor:pointer; color:#111; }
-  .logo { width:52px; height:52px; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+
+  .menu-toggle { display:none; font-size:1.6rem; cursor:pointer; color:#111; user-select:none; }
+
+  .logo { width:55px; height:55px; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   .logo img { width:100%; height:100%; object-fit:contain; display:block; }
 
   .nav-links {
@@ -54,94 +57,71 @@
     gap:1.25rem;
     align-items:center;
   }
-  .nav-links li a { text-decoration:none; color:#111; font-weight:500; padding:6px; display:inline-block; }
-  .nav-links li a:hover, .nav-links li a.active { color: var(--accent); }
+  .nav-links li a { text-decoration:none; color:#111; font-weight:500; padding:0.25rem; }
+  .nav-links li a:hover, .nav-links li a.active { color:#00bfff; }
 
-  .nav-buttons { display:flex; gap:.85rem; align-items:center; list-style:none; }
+  .nav-buttons { display:flex; gap:1rem; align-items:center; list-style:none; }
   .nav-buttons img {
     width:auto;
-    max-width:28px;    /* prevents overflow */
+    max-width:28px;    /* <-- prevents overflow */
     height:auto;
     display:block;
     cursor:pointer;
-    transition: transform .16s, filter .16s;
+    transition: transform .18s, filter .18s;
   }
-  .nav-buttons img:hover { transform: scale(1.08); filter:brightness(1.12); }
+  .nav-buttons img:hover { transform:scale(1.08); filter:brightness(1.12); }
 
-  /* popup menu (desktop) */
+  /* popups */
   .popup-menu.fullwidth {
-    position: fixed;
+    position: absolute;
     top: 60px;
-    left: 0;
-    transform: translate(-50%, -12px);
-    width: 100%;
-    background:#f2f2f7;
-    padding: .85rem;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 160ms ease, transform 160ms ease;
-    z-index: 999;
+    left: 50%;
+    transform: translateX(-50%) translateY(-12px);
+    min-width: 280px;
+    max-width: 92vw;
+    background: #f2f2f7;
+    color: #111;
+    padding: 1rem;
+    display: none;
+    border-radius:10px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+    transition: opacity 180ms ease, transform 180ms ease;
+    z-index: 200;
   }
   .popup-menu.fullwidth.show {
+    display:block;
     opacity:1;
-    pointer-events: all;
-    transform: translate(-50%, 0);
+    transform: translateX(-50%) translateY(0);
   }
-  .popup-section { display:flex; flex-direction:column; gap:.4rem; }
-  .popup-section a { display:flex; gap:.5rem; align-items:center; padding:.45rem .5rem; border-radius:8px; text-decoration:none; color:#111; }
-  .popup-section a:hover { background:var(--accent); color:#000; }
+  .popup-menu.fullwidth .popup-section { display:flex; flex-direction:column; gap:.5rem; }
+  .popup-menu.fullwidth a { display:flex; align-items:center; gap:.5rem; padding:.45rem .5rem; border-radius:8px; color:#111; text-decoration:none; }
+  .popup-menu.fullwidth a:hover { background:#00bfff; color:#000; }
 
-  /* ---------------- Mobile styles ---------------- */
+  /* mobile specific */
   .mobile-buttons { display:none; }
 
-  @media (max-width: 768px) {
+  @media (max-width:768px) {
     .menu-toggle { display:block; }
     .nav-links {
-      position: fixed;
-      top: 0;
-      left: -100%;
-      height: 100vh;
-      height: 100dvh;
-      width: 260px;
-      background: #f2f2f7;
+      position:fixed;
+      top:0;
+      left:-100%;
+      height:100vh;
+      height:100dvh;
+      width:260px;
+      background:#f2f2f7;
       display:flex;
       flex-direction:column;
-      gap: 1rem;
-      padding: calc(var(--nav-height) + env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom));
-      transition: left 300ms cubic-bezier(.22,.9,.35,1);
-      z-index: 200;
+      gap:1rem;
+      padding: calc(80px + env(safe-area-inset-top)) 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+      transition:left 0.36s ease;
+      z-index:150;
     }
-    .nav-links.show { left: 0; }
+    .nav-links.show { left:0; }
+    .nav-buttons { display:none; }
+    .mobile-buttons { display:flex; gap:0.75rem; margin-top:auto; padding-top:1rem; }
+    .mobile-buttons img { width:auto; max-width:32px; height:auto; cursor:pointer; }
     
-    .navbar-left .nav-links {
-        position: fixed;
-        top: 0;
-        left: -100%;  /* offscreen by default */
-        width: 260px;
-        height: 100vh; 
-        background: rgba(242,242,247);
-        display: flex;
-        flex-direction: column;
-        padding-top: 80px; /* space for logo + X button */
-        transition: left 0.4s ease;
-        z-index: 150;
-    }
-
-    .navbar-left .nav-links.show {
-        left: 0; /* slide in when hamburger clicked */
-    }
-
-    .nav-links .drawer-header {
-      position: relative;
-      height: 56px;
-      display:flex;
-      align-items:center;
-      padding: 0 8px;
-      margin-bottom: 6px;
-    }
-    /* Close X on left */
     .drawer-close {
       background:transparent;
       border:0;
@@ -150,8 +130,8 @@
       color:#111;
       padding:6px;
       display:inline-flex;
-      align-items:center;
-      justify-content:center;
+      align-items:left;
+      justify-content:left;
       z-index: 5;
     }
     /* Logo centered in header via absolute centering */
@@ -166,32 +146,26 @@
       display:flex; align-items:center; justify-content:center;
     }
     .drawer-logo img { width:100%; height:100%; object-fit:contain; display:block; }
-
-    /* Links left-aligned */
-    .nav-links li { list-style:none; width:100%; }
-    .nav-links li a { display:block; padding:.65rem .5rem; text-align:left; font-size:1rem; color:#111; }
-    .nav-links li a:hover { background: rgba(0,0,0,0.04); color:var(--accent); }
-
-    .mobile-buttons { display:flex; gap:0.75rem; margin-top:auto; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
-    .mobile-buttons img { width:auto; max-width:32px; height:auto; cursor:pointer; }
   }
 
-  /* ---------------- Hero ---------------- */
+  /* ---------------- Hero Section ---------------- */
   .hero {
     position:relative;
     width:100%;
     height: calc(var(--vh) * 100);
     min-height: calc(var(--vh) * 100);
     overflow:hidden;
-    padding-top: var(--nav-height);
+    padding-top:60px;
   }
 
   .slide {
     position:absolute; inset:0;
     width:100%; height:100%;
-    opacity:0; transition: opacity 700ms ease-in-out;
+    opacity:0; transition:opacity 750ms ease-in-out;
     pointer-events:none;
-    display:flex; align-items:center; justify-content:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
 
   .slide video {
@@ -200,14 +174,14 @@
     filter:brightness(65%);
     transform:scale(1.05);
     transition: transform 1.8s ease;
-    pointer-events:none; /* avoid stealing touches */
+    pointer-events:none; /* don't steal taps */
     display:block;
   }
 
   .slide.active { opacity:1; z-index:2; pointer-events:auto; }
   .slide.active video { transform:scale(1); }
 
-  /* Fallback slide when video missing or fails */
+  /* fallback slide when video missing or fails */
   .slide.fallback {
     background:#000;
     display:flex;
@@ -220,26 +194,33 @@
   .caption {
     position:absolute; top:50%; left:50%;
     transform:translate(-50%, -50%);
-    max-width:780px; text-align:center;
-    z-index:3; padding: 0 1rem;
+    text-align:center;
     color:#fff;
+    opacity:0; transition: opacity 600ms ease, transform 600ms ease;
+    max-width:780px; z-index:3;
+    padding: 0 1rem;
   }
-  .caption h2 { font-size:2.6rem; font-weight:700; margin-bottom:1rem; line-height:1.12; color:#fff; text-shadow: 0 6px 22px rgba(0,0,0,0.45); }
+  .slide.active .caption { opacity:1; transform:translate(-50%, -50%) scale(1); }
+  .caption h2 { font-size:2.6rem; font-weight:700; margin-bottom:1rem; line-height:1.12; color: #fff; text-shadow: 0 6px 24px rgba(0,0,0,0.45); }
   .caption a {
     text-decoration:none; color:#fff;
-    border:1px solid #fff; padding:.6rem 1rem; border-radius:36px; font-size:0.95rem;
-    background: rgba(255,255,255,0.05);
+    border:1px solid #fff; padding:0.6rem 1.2rem; border-radius:36px; font-size:0.95rem;
+    transition: all 200ms ease;
+    background: rgba(255,255,255,0.06);
   }
-  .caption a:hover { background:#fff; color:#000; }
+  .caption a:hover { background:#fff; color:#000; border-color:#fff; }
 
-  .dots { position:absolute; top:50%; right:2.25rem; transform:translateY(-50%); display:flex; flex-direction:column; gap:.6rem; z-index:5; }
-  .dot { width:12px; height:12px; border-radius:50%; background: rgba(255,255,255,0.4); cursor:pointer; transition: all 160ms; }
+  .dots {
+    position:absolute; top:50%; right:2.25rem; transform:translateY(-50%); display:flex; flex-direction:column; gap:0.6rem; z-index:5;
+  }
+  .dot { width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,0.4); cursor:pointer; transition: all 160ms; }
   .dot.active { background:#fff; transform:scale(1.2); }
 
   .scroll-indicator {
     position:absolute; bottom:2rem; left:50%;
     transform:translateX(-50%);
-    font-size:.85rem; letter-spacing:1px; color:rgba(255,255,255,.85);
+    font-size:0.85rem; letter-spacing:1px;
+    color:rgba(255,255,255,0.85);
     animation:fadeMove 2s infinite;
     z-index:4;
   }
@@ -248,16 +229,20 @@
     50%{opacity:1; transform:translate(-50%,10px);}
   }
 
-  /* ---------------- White section ---------------- */
+  /* ---------------- White Section ---------------- */
   .white-section {
-    background:#fff; color:#111;
-    width:100%; min-height:100dvh;
-    padding:100px 20px; font-size:1.05rem; line-height:1.6;
+    background:#fff;
+    color:#111;
+    width:100%;
+    min-height: 100dvh;
+    padding:100px 20px;
+    font-size:1.05rem;
+    line-height:1.6;
     opacity:0; transition: opacity 600ms ease;
   }
   .white-section.visible { opacity:1; }
 
-  /* Accessibility helper */
+  /* small helpers for accessibility */
   .sr-only { position:absolute !important; width:1px; height:1px; margin:-1px; border:0; clip:rect(0 0 0 0); overflow:hidden; padding:0; white-space:nowrap; }
 </style>
 </head>
@@ -267,17 +252,11 @@
   <div class="navbar-left">
     <div class="menu-toggle" aria-hidden="true">&#9776;</div>
     <div class="logo"><img src="/logo.png" alt="Logo"></div>
-
-    <ul class="nav-links" role="menubar" aria-hidden="true">
-      <!-- Mobile drawer header will be injected in mobile via CSS layout (we add an element here for structure) -->
-      <li class="drawer-header" style="display:none;">
-        <!-- This area is styled only in mobile via CSS; content injected by HTML below when mobile shows -->
-      </li>
-
-      <li><a href="index.html" class="active" role="menuitem">Home</a></li>
-      <li><a href="about.html" role="menuitem">About</a></li>
-      <li><a href="services.html" role="menuitem">Services</a></li>
-      <li><a href="contact.html" role="menuitem">Contact</a></li>
+    <ul class="nav-links" role="menubar">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="contact.html">Contact</a></li>
 
       <div class="mobile-buttons" aria-hidden="true">
         <img src="/imagebuttons/apps-click.png" alt="Apps">
@@ -329,6 +308,7 @@
 <!-- HERO -->
 <div class="hero" id="hero">
   <div class="slide active" data-index="0">
+    <!-- Option A: keep video tag(s) on slides - fallback will only apply if video missing or fails -->
     <video src="video1.mp4" autoplay muted loop playsinline preload="metadata"></video>
     <div class="caption"><h2>We’re building the future of human connection</h2><a href="#">Our Mission</a></div>
   </div>
@@ -358,7 +338,6 @@
   <div class="scroll-indicator">Scroll ↓</div>
 </div>
 
-<!-- White content -->
 <section class="white-section" id="white">
   <h1>Meta-style White Section</h1>
   <p>This section appears after you scroll through all hero slides.</p>
@@ -366,7 +345,7 @@
 </section>
 
 <script>
-/* ========= State & elements ========= */
+/* ====== Utilities & state ====== */
 const slides = document.querySelectorAll('.slide');
 const dots = document.querySelectorAll('.dot');
 const whiteSection = document.querySelector('.white-section');
@@ -376,59 +355,58 @@ const navbar = document.querySelector('.navbar');
 let current = 0;
 let heroFinished = false;
 let isScrolling = false;
-const slideInterval = 5000; // Option A: 5 seconds
+const slideInterval = 5000;
 let autoSlideTimer;
 
-/* ========= --vh fix for mobile browsers (iOS) ========= */
+/* ====== set --vh for iOS/mobile URL bar handling ====== */
 function setVh() {
   const vh = window.visualViewport ? window.visualViewport.height * 0.01 : window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
 setVh();
 if (window.visualViewport) {
-  ['resize','scroll'].forEach(ev => window.visualViewport.addEventListener(ev, setVh));
+  ['resize','scroll'].forEach(evt => window.visualViewport.addEventListener(evt, setVh));
 }
 window.addEventListener('resize', setVh);
 window.addEventListener('orientationchange', setVh);
 
-/* ========= Show slide ========= */
+/* ====== Show slide ====== */
 function showSlide(index) {
   slides.forEach((s,i) => s.classList.toggle('active', i===index));
   dots.forEach((d,i) => d.classList.toggle('active', i===index));
   current = index;
 }
 
-/* ========= Video fallback (Option A) ========= */
+/* ====== Video fallback handling (Option A) ====== */
 function applyVideoFallback() {
   slides.forEach(slide => {
     const video = slide.querySelector('video');
+    // If there's no video element: just show fallback look
     if (!video) {
       slide.classList.add('fallback');
       return;
     }
-    // if src empty
-    const src = video.getAttribute('src');
-    if (!src || src.trim() === '') {
+
+    // If video fails to load -> fallback
+    const onError = () => {
       slide.classList.add('fallback');
-      return;
+    };
+    video.addEventListener('error', onError);
+
+    // If video can play, ensure fallback class removed
+    video.addEventListener('loadeddata', () => {
+      slide.classList.remove('fallback');
+    });
+
+    // If video is empty src or not reachable, also mark fallback quickly
+    if (!video.getAttribute('src') || video.getAttribute('src').trim() === '') {
+      slide.classList.add('fallback');
     }
-    const onError = () => slide.classList.add('fallback');
-    const onLoaded = () => slide.classList.remove('fallback');
-
-    video.addEventListener('error', onError, { once: true });
-    video.addEventListener('loadeddata', onLoaded, { once: true });
-
-    // also if networkState indicates no data after a tick
-    setTimeout(() => {
-      if (video.readyState === 0) {
-        // may be blocked by autoplay or not loaded yet — leave it alone, loadeddata will clear fallback if successful
-      }
-    }, 600);
   });
 }
 applyVideoFallback();
 
-/* ========= Lock / unlock scroll for hero experience ========= */
+/* ====== Lock/Unlock scroll behaviour for initial hero experience ====== */
 function lockScroll() {
   if (heroFinished) return;
   document.body.style.overflowY = 'hidden';
@@ -443,9 +421,9 @@ function unlockScroll() {
   clearInterval(autoSlideTimer);
 }
 
-/* ========= Auto slide (Option A) ========= */
-function startAutoSlide() {
-  autoSlideTimer = setInterval(() => {
+/* ====== Auto slide (stops when hero finished) ====== */
+function startAutoSlide(){
+  autoSlideTimer = setInterval(()=>{
     if (heroFinished) return;
     if (current < slides.length - 1) showSlide(current + 1);
     else unlockScroll();
@@ -454,8 +432,8 @@ function startAutoSlide() {
 startAutoSlide();
 lockScroll();
 
-/* ========= Wheel & touch navigation ========= */
-window.addEventListener('wheel', e => {
+/* ====== Wheel and touch navigation for slides ====== */
+window.addEventListener('wheel', e=>{
   if (isScrolling || heroFinished) return;
   isScrolling = true;
   e.preventDefault();
@@ -465,99 +443,56 @@ window.addEventListener('wheel', e => {
   } else if (e.deltaY < 0) {
     if (current > 0) showSlide(current - 1);
   }
-  setTimeout(() => isScrolling = false, 420);
+  setTimeout(()=> { isScrolling = false; }, 400);
 }, { passive: false });
 
 let touchStartY = 0;
-window.addEventListener('touchstart', e => { if (heroFinished) return; touchStartY = e.touches[0].clientY; }, { passive: true });
+window.addEventListener('touchstart', e => { if(heroFinished) return; touchStartY = e.touches[0].clientY; }, { passive: true });
 window.addEventListener('touchend', e => {
   if (heroFinished) return;
-  const delta = touchStartY - e.changedTouches[0].clientY;
+  let delta = touchStartY - e.changedTouches[0].clientY;
   if (Math.abs(delta) > 50) {
     if (delta > 0) {
       if (current < slides.length - 1) showSlide(current + 1);
       else unlockScroll();
-    } else if (current > 0) showSlide(current - 1);
+    } else {
+      if (current > 0) showSlide(current - 1);
+    }
   }
 }, { passive: true });
 
-/* ========= Dots click ========= */
-dots.forEach(dot => dot.addEventListener('click', () => showSlide(parseInt(dot.dataset.index))));
+/* ====== Dots click ====== */
+dots.forEach(dot => dot.addEventListener('click', ()=> showSlide(parseInt(dot.dataset.index))));
 
-/* ========= Navbar scrolled state ========= */
+/* ====== Navbar scroll state to add 'scrolled' class ====== */
 window.addEventListener('scroll', () => {
   if (window.scrollY >= window.innerHeight) navbar.classList.add('scrolled');
 });
 
-/* ========= Mobile drawer behavior ========= */
-/* We'll build a clear drawer header (X left, logo centered) only used on mobile */
-function createMobileDrawerHeader() {
-  // Only create once
-  if (document.querySelector('.drawer-header .drawer-close')) return;
-  const header = document.createElement('div');
-  header.className = 'drawer-header';
-  // left X button
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'drawer-close';
-  closeBtn.setAttribute('aria-label', 'Close menu');
-  closeBtn.innerHTML = '&times;';
-  // centered logo
-  const logoWrap = document.createElement('div');
-  logoWrap.className = 'drawer-logo';
-  const img = document.createElement('img');
-  img.src = '/logo.png';
-  img.alt = 'Logo';
-  logoWrap.appendChild(img);
-
-  header.appendChild(closeBtn);
-  header.appendChild(logoWrap);
-
-  // Insert at the top of nav-links
-  navLinks.insertBefore(header, navLinks.firstElementChild);
-
-  // Hook behaviour
-  closeBtn.addEventListener('click', () => {
-    navLinks.classList.remove('show');
-    // reset hamburger icon text if present
-    if (menuToggle) menuToggle.innerHTML = '&#9776;';
-  });
-}
-createMobileDrawerHeader();
-
-/* Hamburger toggle (desktop/hybrid) */
+/* ====== Mobile hamburger ====== */
 if (menuToggle) {
   menuToggle.addEventListener('click', () => {
-    // Build mobile header if necessary
-    createMobileDrawerHeader();
     navLinks.classList.toggle('show');
-    // When drawer open, swap icon to X on the top-level navbar for discoverability
-    if (navLinks.classList.contains('show')) {
-      menuToggle.innerHTML = '&times;';
-      // Additionally focus the first nav link for keyboard users
-      const first = navLinks.querySelector('a');
-      if (first) first.focus();
-    } else {
-      menuToggle.innerHTML = '&#9776;';
-    }
+    menuToggle.innerHTML = navLinks.classList.contains('show') ? '&times;' : '&#9776;';
   });
-
-  // close drawer when any link clicked
-  navLinks.querySelectorAll('a').forEach(link => {
+  // Close drawer when clicking a link
+  document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
       navLinks.classList.remove('show');
-      if (menuToggle) menuToggle.innerHTML = '&#9776;';
+      menuToggle.innerHTML = '&#9776;';
     });
   });
 }
 
-/* ========= Desktop popup hover behavior: stays open while hovering trigger OR menu ========= */
+/* ====== Robust popup hover behavior: stays open while hovering either icon OR menu ====== */
 document.querySelectorAll('.popup-wrapper').forEach(wrapper => {
   const btn = wrapper.querySelector('.popup-btn');
   const menu = wrapper.querySelector('.popup-menu');
-  let hoverTimeout = null;
+  let hoverTimeout;
 
   function openMenu() {
     clearTimeout(hoverTimeout);
+    // mark aria as visible
     menu.classList.add('show');
     menu.setAttribute('aria-hidden', 'false');
   }
@@ -568,91 +503,69 @@ document.querySelectorAll('.popup-wrapper').forEach(wrapper => {
     }, 150);
   }
 
-  // If user lands on inner anchor via keyboard, open too
-  const btnAnchor = btn.querySelector('a');
-  if (btnAnchor) {
-    btnAnchor.addEventListener('focus', openMenu);
-    btnAnchor.addEventListener('blur', closeMenu);
-  }
-
   btn.addEventListener('mouseenter', openMenu);
   btn.addEventListener('mouseleave', closeMenu);
   menu.addEventListener('mouseenter', openMenu);
   menu.addEventListener('mouseleave', closeMenu);
-});
 
-/* ========= Mobile nested popup menu (for mobile-buttons inside drawer) ========= */
-document.addEventListener('click', (e) => {
-  // Create a mobile-popup on clicks of the mobile-buttons if clicked (these exist inside nav-links on mobile)
-  const img = e.target.closest('.mobile-buttons img');
-  if (!img) return;
-  const menuType = img.alt || 'Menu';
-
-  // Remove any existing
-  const existing = document.querySelector('.mobile-popup-menu');
-  if (existing) existing.remove();
-
-  const menu = document.createElement('div');
-  menu.className = 'mobile-popup-menu';
-  menu.style.position = 'fixed';
-  menu.style.top = '0';
-  menu.style.left = '0';
-  menu.style.width = '260px';
-  menu.style.height = '100vh';
-  menu.style.background = '#f2f2f7';
-  menu.style.padding = '80px 1.25rem 1.25rem';
-  menu.style.zIndex = '280';
-  menu.style.transform = 'translateX(-100%)';
-  menu.style.transition = 'transform 300ms ease';
-
-  const backBtn = document.createElement('div');
-  backBtn.style.fontSize = '1.1rem';
-  backBtn.style.cursor = 'pointer';
-  backBtn.style.marginBottom = '.75rem';
-  backBtn.textContent = '← Back';
-  backBtn.style.color = '#111';
-  menu.appendChild(backBtn);
-
-  const sec = document.createElement('div');
-  sec.innerHTML = `<h4 style="margin:0 0 .75rem 0;">${menuType}</h4>
-    <a href="#" style="display:block;padding:.55rem 0;">App 1</a>
-    <a href="#" style="display:block;padding:.55rem 0;">App 2</a>
-    <a href="#" style="display:block;padding:.55rem 0;">App 3</a>`;
-  menu.appendChild(sec);
-
-  document.body.appendChild(menu);
-  // show
-  requestAnimationFrame(() => menu.style.transform = 'translateX(0)');
-
-  backBtn.addEventListener('click', () => {
-    menu.style.transform = 'translateX(-100%)';
-    setTimeout(() => menu.remove(), 300);
+  // Also support keyboard / focus accessibility:
+  btn.querySelectorAll('a').forEach(a => {
+    a.addEventListener('focus', openMenu);
+    a.addEventListener('blur', closeMenu);
   });
 });
 
-/* ========= Ensure fallback re-check on load ========= */
+/* ====== Mobile nested popup menu (same behavior but created on demand) ====== */
+document.querySelectorAll('.mobile-buttons img').forEach(button => {
+  button.addEventListener('click', () => {
+    const menuType = button.alt || 'Menu';
+    let existingMenu = document.querySelector('.mobile-popup-menu');
+    if (existingMenu) existingMenu.remove();
+
+    const menu = document.createElement('div');
+    menu.classList.add('mobile-popup-menu');
+    menu.style.position = 'fixed';
+    menu.style.top = '0';
+    menu.style.left = '0';
+    menu.style.width = '260px';
+    menu.style.height = '100vh';
+    menu.style.background = '#f2f2f7';
+    menu.style.padding = '80px 1.25rem 1.25rem';
+    menu.style.zIndex = 260;
+    menu.style.transition = 'transform 300ms ease';
+    menu.style.transform = 'translateX(-100%)';
+
+    const backBtn = document.createElement('div');
+    backBtn.textContent = '← Back';
+    backBtn.style.fontSize = '1.1rem';
+    backBtn.style.cursor = 'pointer';
+    backBtn.style.marginBottom = '0.75rem';
+    backBtn.style.color = '#111';
+    menu.appendChild(backBtn);
+
+    const section = document.createElement('div');
+    section.innerHTML = `<h4 style="margin:0 0 .75rem 0;">${menuType}</h4>
+      <a href="#" style="display:block;padding:.55rem 0;">App 1</a>
+      <a href="#" style="display:block;padding:.55rem 0;">App 2</a>
+      <a href="#" style="display:block;padding:.55rem 0;">App 3</a>`;
+    menu.appendChild(section);
+
+    document.body.appendChild(menu);
+    // show
+    setTimeout(()=> menu.style.transform = 'translateX(0)', 10);
+
+    backBtn.addEventListener('click', () => {
+      menu.style.transform = 'translateX(-100%)';
+      setTimeout(()=> menu.remove(), 350);
+    });
+  });
+});
+
+/* ====== Ensure initial styles stable on load (in case of slow JS) ====== */
 window.addEventListener('load', () => {
+  // If autoplay videos are blocked, they may still load later; apply fallback check
   applyVideoFallback();
 });
-
-/* ========= Accessibility: close popup menus when clicking outside ========= */
-document.addEventListener('click', (e) => {
-  // close any desktop popup when clicking outside
-  document.querySelectorAll('.popup-menu.fullwidth.show').forEach(menu => {
-    if (!menu.contains(e.target) && !menu.previousElementSibling.contains(e.target)) {
-      menu.classList.remove('show');
-      menu.setAttribute('aria-hidden', 'true');
-    }
-  });
-});
-
-/* ========= Prevent accidental scroll when hero active on iOS pinch/drag ========= */
-document.addEventListener('touchmove', (e) => {
-  if (!heroFinished) {
-    // while hero locked, avoid vertical page scroll
-    e.preventDefault();
-  }
-}, { passive: false });
 </script>
 </body>
 </html>
