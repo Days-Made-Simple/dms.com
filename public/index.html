@@ -5,43 +5,40 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Days Made Simple | Innovation & Creativity</title>
 <style>
-  * { margin:0; padding:0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
- :root {
-    --vh: 1vh;
- }
+  :root { --vh: 1vh; }
 
   html, body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    font-family:"Helvetica Neue", Arial, sans-serif;
+    height:100%;
+    width:100%;
     background:#000;
     color:#000;
-    overflow-x: hidden;
-    overflow-y: auto;
+    font-family:"Helvetica Neue", Arial, sans-serif;
+    overflow-x:hidden;
+    /* We'll control vertical overflow from JS while hero is locked */
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
   }
 
   /* ---------------- Navbar ---------------- */
   .navbar {
-    position: fixed;
+    position:fixed;
     top:0;
-    width:100%;
+    left:0;
+    right:0;
     height:60px;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:0 2rem;
+    padding:0 1.25rem;
     background: rgba(255,255,255,0.925);
     color:#111;
     backdrop-filter: blur(10px);
     z-index:100;
-    transition: background 0.5s ease;
+    transition: background 0.35s ease;
   }
-  .navbar.scrolled { background: rgba(255,255,255,0.925); 
-  backdrop-filter: blur(10px);
-  }
+  .navbar.scrolled { background: rgba(255,255,255,0.95); }
 
   .navbar-left {
     display:flex;
@@ -49,223 +46,194 @@
     gap:1rem;
   }
 
-  .navbar-left .logo {
-    display:flex; align-items:center; justify-content:center;
-    width:55px; height:55px; border-radius:6px; overflow:hidden;
-  }
-  .navbar-left .logo img {
-    width:100%; height:100%; object-fit:contain; display:block;
-  }
+  .menu-toggle { display:none; font-size:1.6rem; cursor:pointer; color:#111; user-select:none; }
 
-  .navbar-left .nav-links {
+  .logo { width:55px; height:55px; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .logo img { width:100%; height:100%; object-fit:contain; display:block; }
+
+  .nav-links {
     list-style:none;
     display:flex;
-    gap:2rem;
+    gap:1.25rem;
+    align-items:center;
   }
+  .nav-links li a { text-decoration:none; color:#111; font-weight:500; padding:0.25rem; }
+  .nav-links li a:hover, .nav-links li a.active { color:#00bfff; }
 
-  .navbar-left .nav-links li a {
-    text-decoration:none;
-    color:#111;
-    font-weight:500;
-    transition:color 0.3s;
+  .nav-buttons { display:flex; gap:1rem; align-items:center; list-style:none; }
+  .nav-buttons img {
+    width:auto;
+    max-width:28px;    /* <-- prevents overflow */
+    height:auto;
+    display:block;
+    cursor:pointer;
+    transition: transform .18s, filter .18s;
   }
+  .nav-buttons img:hover { transform:scale(1.08); filter:brightness(1.12); }
 
-  .navbar-left .nav-links li a:hover,
-  .navbar-left .nav-links li a.active {
-    color:#00bfff;
-  }
-
-  .nav-buttons { display:flex; gap:1rem; list-style:none; }
-  .popup-btn a img { display:block; max-height:25px; cursor:pointer; transition:transform 0.2s, filter 0.2s; }
-  .popup-btn a img:hover { transform:scale(1.1); filter:brightness(1.2); }
-
+  /* popups */
   .popup-menu.fullwidth {
-    position: fixed;
+    position: absolute;
     top: 60px;
-    left: 0;
-    width: 100vw;
-    background: rgba(242,242,247);
-    color: #fff;
-    padding: 2rem 5%;
-    display: flex;
-    justify-content: flex-start;
-    gap: 2rem;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    left: 50%;
+    transform: translateX(-50%) translateY(-12px);
+    min-width: 280px;
+    max-width: 92vw;
+    background: #f2f2f7;
+    color: #111;
+    padding: 1rem;
+    display: none;
+    border-radius:10px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+    transition: opacity 180ms ease, transform 180ms ease;
     z-index: 200;
   }
-  .popup-menu.fullwidth .popup-section { flex:1; }
-  .popup-menu.fullwidth a { display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0; border-radius:6px; transition:background 0.2s; }
+  .popup-menu.fullwidth.show {
+    display:block;
+    opacity:1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .popup-menu.fullwidth .popup-section { display:flex; flex-direction:column; gap:.5rem; }
+  .popup-menu.fullwidth a { display:flex; align-items:center; gap:.5rem; padding:.45rem .5rem; border-radius:8px; color:#111; text-decoration:none; }
   .popup-menu.fullwidth a:hover { background:#00bfff; color:#000; }
-  .popup-menu.fullwidth h4 { margin-bottom:0.8rem; font-size:1rem; font-weight:600; color:#fff; }
-  .popup-section a img { width:18px; height:18px; }
 
-  .menu-toggle {
-    display:none;
-    font-size:2rem;
-    cursor:pointer;
-    color:#111;
-    user-select:none;
-  }
+  /* mobile specific */
+  .mobile-buttons { display:none; }
 
-  .mobile-buttons {
-    display: none;
-  }
-
-  /* ---------------- Mobile Drawer ---------------- */
-  @media(max-width:768px){
-    .navbar-left .nav-links {
+  @media (max-width:768px) {
+    .menu-toggle { display:block; }
+    .nav-links {
       position:fixed;
       top:0;
       left:-100%;
       height:100vh;
-      height: 100dvh;
+      height:100dvh;
       width:260px;
-      background:rgba(242,242,247);
+      background:#f2f2f7;
       display:flex;
       flex-direction:column;
-      gap:1.5rem;
-      padding:calc(80px + env(safe-area-inset-top)) 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
-      transition:left 0.4s ease;
+      gap:1rem;
+      padding: calc(80px + env(safe-area-inset-top)) 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+      transition:left 0.36s ease;
       z-index:150;
     }
-    .navbar-left .nav-links.show { left:0; }
-
-    .menu-toggle { display:block; margin-left:0.5rem; z-index:200; }
-
+    .nav-links.show { left:0; }
     .nav-buttons { display:none; }
-
-    .mobile-buttons {
-      margin-top:auto;
-      display:flex;
-      justify-content:space-around;
-      padding-top:2rem;
-    }
-    .mobile-buttons img {
-      width:32px;
-      height:32px;
-      cursor:pointer;
-      transition:transform 0.2s, filter 0.2s;
-    }
-    .mobile-buttons img:hover {
-      transform:scale(1.1);
-      filter:brightness(1.2);
-    }
-
-    /* Nested mobile popup menu */
-    .mobile-popup-menu {
-      position: fixed;
-      top: 0; left: -100%;
-      width: 260px;
-      height: 100vh;
-      background: rgba(242,242,247);
-      display: flex;
-      flex-direction: column;
-      padding: 80px 1.5rem 1.5rem;
-      gap: 1rem;
-      transition: left 0.4s ease;
-      z-index: 160;
-    }
-    .mobile-popup-menu.show {
-      left: 0;
-    }
-    .mobile-popup-menu .back-btn {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      cursor: pointer;
-      color: #111;
-    }
+    .mobile-buttons { display:flex; gap:0.75rem; margin-top:auto; padding-top:1rem; }
+    .mobile-buttons img { width:auto; max-width:32px; height:auto; cursor:pointer; }
   }
 
   /* ---------------- Hero Section ---------------- */
   .hero {
     position:relative;
     width:100%;
-    height: calc(var(--vh, 1vh) * 100);
-    min-height: 100dvh;
+    height: calc(var(--vh) * 100);
+    min-height: calc(var(--vh) * 100);
     overflow:hidden;
     padding-top:60px;
   }
+
   .slide {
-    position:absolute; top:0; left:0;
+    position:absolute; inset:0;
     width:100%; height:100%;
-    opacity:0; transition:opacity 1s ease-in-out;
+    opacity:0; transition:opacity 750ms ease-in-out;
     pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
+
   .slide video {
     width:100%; height:100%;
-    object-fit:cover; filter:brightness(65%);
-    transform:scale(1.05); transition: transform 2s ease;
+    object-fit:cover;
+    filter:brightness(65%);
+    transform:scale(1.05);
+    transition: transform 1.8s ease;
+    pointer-events:none; /* don't steal taps */
+    display:block;
   }
-  .slide.active { opacity:1; z-index:2; pointer-events:all; }
+
+  .slide.active { opacity:1; z-index:2; pointer-events:auto; }
   .slide.active video { transform:scale(1); }
+
+  /* fallback slide when video missing or fails */
+  .slide.fallback {
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  .slide.fallback video { display:none; }
+  .slide.fallback .caption h2 { color:#fff; }
 
   .caption {
     position:absolute; top:50%; left:50%;
     transform:translate(-50%, -50%);
-    text-align:center; color:#fff;
-    opacity:0; transition: opacity 1s ease, transform 1s ease;
-    max-width:700px; z-index:3;
+    text-align:center;
+    color:#fff;
+    opacity:0; transition: opacity 600ms ease, transform 600ms ease;
+    max-width:780px; z-index:3;
+    padding: 0 1rem;
   }
   .slide.active .caption { opacity:1; transform:translate(-50%, -50%) scale(1); }
-
-  .caption h2 { font-size:3rem; font-weight:700; margin-bottom:1.2rem; line-height:1.2; }
+  .caption h2 { font-size:2.6rem; font-weight:700; margin-bottom:1rem; line-height:1.12; color: #fff; text-shadow: 0 6px 24px rgba(0,0,0,0.45); }
   .caption a {
     text-decoration:none; color:#fff;
-    border:1px solid #fff; padding:0.8rem 1.8rem;
-    border-radius:50px; font-size:1rem;
-    transition: all 0.3s ease;
+    border:1px solid #fff; padding:0.6rem 1.2rem; border-radius:36px; font-size:0.95rem;
+    transition: all 200ms ease;
+    background: rgba(255,255,255,0.06);
   }
-  .caption a:hover { background:#fff; color:#000; }
+  .caption a:hover { background:#fff; color:#000; border-color:#fff; }
 
   .dots {
-    position:absolute; top:50%; right:3rem;
-    transform:translateY(-50%);
-    display:flex; flex-direction:column; gap:0.75rem;
-    z-index:5;
+    position:absolute; top:50%; right:2.25rem; transform:translateY(-50%); display:flex; flex-direction:column; gap:0.6rem; z-index:5;
   }
-  .dot { width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,0.4); cursor:pointer; transition: all 0.3s; }
+  .dot { width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,0.4); cursor:pointer; transition: all 160ms; }
   .dot.active { background:#fff; transform:scale(1.2); }
 
   .scroll-indicator {
     position:absolute; bottom:2rem; left:50%;
     transform:translateX(-50%);
-    font-size:0.9rem; letter-spacing:1px;
-    color:rgba(255,255,255,0.8);
+    font-size:0.85rem; letter-spacing:1px;
+    color:rgba(255,255,255,0.85);
     animation:fadeMove 2s infinite;
     z-index:4;
   }
-  @keyframes fadeMove{
+  @keyframes fadeMove {
     0%,100%{opacity:0; transform:translate(-50%,0);}
     50%{opacity:1; transform:translate(-50%,10px);}
   }
 
+  /* ---------------- White Section ---------------- */
   .white-section {
-    background:#fff; color:#111;
-    width: 100%;
-    min-height: 100dvh; 
+    background:#fff;
+    color:#111;
+    width:100%;
+    min-height: 100dvh;
     padding:100px 20px;
-    font-size:1.5rem; line-height:1.6;
-    opacity:0; transition: opacity 1s ease;
+    font-size:1.05rem;
+    line-height:1.6;
+    opacity:0; transition: opacity 600ms ease;
   }
   .white-section.visible { opacity:1; }
+
+  /* small helpers for accessibility */
+  .sr-only { position:absolute !important; width:1px; height:1px; margin:-1px; border:0; clip:rect(0 0 0 0); overflow:hidden; padding:0; white-space:nowrap; }
 </style>
 </head>
 <body>
 
-<nav class="navbar">
+<nav class="navbar" role="navigation" aria-label="Main navigation">
   <div class="navbar-left">
-    <div class="menu-toggle">&#9776;</div>
+    <div class="menu-toggle" aria-hidden="true">&#9776;</div>
     <div class="logo"><img src="/logo.png" alt="Logo"></div>
-    <ul class="nav-links">
+    <ul class="nav-links" role="menubar">
       <li><a href="index.html" class="active">Home</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="services.html">Services</a></li>
       <li><a href="contact.html">Contact</a></li>
 
-      <div class="mobile-buttons">
+      <div class="mobile-buttons" aria-hidden="true">
         <img src="/imagebuttons/apps-click.png" alt="Apps">
         <img src="/imagebuttons/account-click.png" alt="Account">
         <img src="/imagebuttons/corporate-click.png" alt="Corporate">
@@ -273,74 +241,86 @@
     </ul>
   </div>
 
-  <ul class="nav-buttons">
-    <li class="popup-wrapper">
-      <div class="popup-btn"><a href="#"><img src="/imagebuttons/apps-click.png" alt="Apps"></a></div>
-      <div class="popup-menu fullwidth">
+  <ul class="nav-buttons" role="toolbar" aria-label="Quick actions">
+    <li class="popup-wrapper" style="position:relative;">
+      <div class="popup-btn" style="display:flex;align-items:center;"><a href="#" aria-haspopup="true"><img src="/imagebuttons/apps-click.png" alt="Apps"></a></div>
+      <div class="popup-menu fullwidth" aria-hidden="true">
         <div class="popup-section">
-          <h4>Apps</h4>
-          <a href="#"><img src="/icons/app1.png"> App 1</a>
-          <a href="#"><img src="/icons/app2.png"> App 2</a>
-          <a href="#"><img src="/icons/app3.png"> App 3</a>
+          <h4 style="margin:0 0 .5rem 0; font-size:1rem; color:#111;">Apps</h4>
+          <a href="#"><img src="/icons/app1.png" alt="" style="width:18px;height:18px;"> App 1</a>
+          <a href="#"><img src="/icons/app2.png" alt="" style="width:18px;height:18px;"> App 2</a>
+          <a href="#"><img src="/icons/app3.png" alt="" style="width:18px;height:18px;"> App 3</a>
         </div>
       </div>
     </li>
-    <li class="popup-wrapper">
-      <div class="popup-btn"><a href="#"><img src="/imagebuttons/account-click.png" alt="Account"></a></div>
-      <div class="popup-menu fullwidth">
+
+    <li class="popup-wrapper" style="position:relative;">
+      <div class="popup-btn" style="display:flex;align-items:center;"><a href="#" aria-haspopup="true"><img src="/imagebuttons/account-click.png" alt="Account"></a></div>
+      <div class="popup-menu fullwidth" aria-hidden="true">
         <div class="popup-section">
-          <h4>Account</h4>
-          <a href="#"><img src="/icons/app1.png"> App 1</a>
-          <a href="#"><img src="/icons/app2.png"> App 2</a>
-          <a href="#"><img src="/icons/app3.png"> App 3</a>
+          <h4 style="margin:0 0 .5rem 0; font-size:1rem; color:#111;">Account</h4>
+          <a href="#"><img src="/icons/app1.png" alt=""> Profile</a>
+          <a href="#"><img src="/icons/app2.png" alt=""> Settings</a>
+          <a href="#"><img src="/icons/app3.png" alt=""> Logout</a>
         </div>
       </div>
     </li>
-    <li class="popup-wrapper">
-      <div class="popup-btn"><a href="#"><img src="/imagebuttons/corporate-click.png" alt="Corporate"></a></div>
-      <div class="popup-menu fullwidth">
+
+    <li class="popup-wrapper" style="position:relative;">
+      <div class="popup-btn" style="display:flex;align-items:center;"><a href="#" aria-haspopup="true"><img src="/imagebuttons/corporate-click.png" alt="Corporate"></a></div>
+      <div class="popup-menu fullwidth" aria-hidden="true">
         <div class="popup-section">
-          <h4>Corporate</h4>
-          <a href="#"><img src="/icons/app1.png"> App 1</a>
-          <a href="#"><img src="/icons/app2.png"> App 2</a>
-          <a href="#"><img src="/icons/app3.png"> App 3</a>
+          <h4 style="margin:0 0 .5rem 0; font-size:1rem; color:#111;">Corporate</h4>
+          <a href="#"><img src="/icons/app1.png" alt=""> About Us</a>
+          <a href="#"><img src="/icons/app2.png" alt=""> Careers</a>
+          <a href="#"><img src="/icons/app3.png" alt=""> Press</a>
         </div>
       </div>
     </li>
   </ul>
 </nav>
 
-<div class="hero">
-  <div class="slide active">
-    <video src="video1.mp4" autoplay muted loop playsinline></video>
+<!-- HERO -->
+<div class="hero" id="hero">
+  <div class="slide active" data-index="0">
+    <!-- Option A: keep video tag(s) on slides - fallback will only apply if video missing or fails -->
+    <video src="video1.mp4" autoplay muted loop playsinline preload="metadata"></video>
     <div class="caption"><h2>We’re building the future of human connection</h2><a href="#">Our Mission</a></div>
   </div>
-  <div class="slide"><video src="video2.mp4" autoplay muted loop playsinline></video>
+
+  <div class="slide" data-index="1">
+    <video src="video2.mp4" autoplay muted loop playsinline preload="metadata"></video>
     <div class="caption"><h2>And the technologies that make it possible</h2><a href="#">Our Technologies</a></div>
   </div>
-  <div class="slide"><video src="video3.mp4" autoplay muted loop playsinline></video>
+
+  <div class="slide" data-index="2">
+    <video src="video3.mp4" autoplay muted loop playsinline preload="metadata"></video>
     <div class="caption"><h2>Our innovations give people new ways to connect</h2><a href="#">AI at YourBrand</a></div>
   </div>
-  <div class="slide"><video src="video4.mp4" autoplay muted loop playsinline></video>
+
+  <div class="slide" data-index="3">
+    <video src="video4.mp4" autoplay muted loop playsinline preload="metadata"></video>
     <div class="caption"><h2>We’re making a positive impact worldwide</h2><a href="#">Our Impact</a></div>
   </div>
 
-  <div class="dots">
+  <div class="dots" aria-hidden="true">
     <div class="dot active" data-index="0"></div>
     <div class="dot" data-index="1"></div>
     <div class="dot" data-index="2"></div>
     <div class="dot" data-index="3"></div>
   </div>
+
   <div class="scroll-indicator">Scroll ↓</div>
 </div>
 
-<div class="white-section">
+<section class="white-section" id="white">
   <h1>Meta-style White Section</h1>
-  <p>This section appears only after you scroll through all hero slides.</p>
-  <p>Here you can add your about text, links, and other content.</p>
-</div>
+  <p>This section appears after you scroll through all hero slides.</p>
+  <p>Here you can add your about text, links and other content.</p>
+</section>
 
 <script>
+/* ====== Utilities & state ====== */
 const slides = document.querySelectorAll('.slide');
 const dots = document.querySelectorAll('.dot');
 const whiteSection = document.querySelector('.white-section');
@@ -353,15 +333,62 @@ let isScrolling = false;
 const slideInterval = 5000;
 let autoSlideTimer;
 
-// Show slide
-function showSlide(index){
-  slides.forEach((s,i)=>s.classList.toggle('active', i===index));
-  dots.forEach((d,i)=>d.classList.toggle('active', i===index));
+/* ====== set --vh for iOS/mobile URL bar handling ====== */
+function setVh() {
+  const vh = window.visualViewport ? window.visualViewport.height * 0.01 : window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+setVh();
+if (window.visualViewport) {
+  ['resize','scroll'].forEach(evt => window.visualViewport.addEventListener(evt, setVh));
+}
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
+
+/* ====== Show slide ====== */
+function showSlide(index) {
+  slides.forEach((s,i) => s.classList.toggle('active', i===index));
+  dots.forEach((d,i) => d.classList.toggle('active', i===index));
   current = index;
 }
 
+/* ====== Video fallback handling (Option A) ====== */
+function applyVideoFallback() {
+  slides.forEach(slide => {
+    const video = slide.querySelector('video');
+    // If there's no video element: just show fallback look
+    if (!video) {
+      slide.classList.add('fallback');
+      return;
+    }
+
+    // If video fails to load -> fallback
+    const onError = () => {
+      slide.classList.add('fallback');
+    };
+    video.addEventListener('error', onError);
+
+    // If video can play, ensure fallback class removed
+    video.addEventListener('loadeddata', () => {
+      slide.classList.remove('fallback');
+    });
+
+    // If video is empty src or not reachable, also mark fallback quickly
+    if (!video.getAttribute('src') || video.getAttribute('src').trim() === '') {
+      slide.classList.add('fallback');
+    }
+  });
+}
+applyVideoFallback();
+
+/* ====== Lock/Unlock scroll behaviour for initial hero experience ====== */
+function lockScroll() {
+  if (heroFinished) return;
+  document.body.style.overflowY = 'hidden';
+  showSlide(current);
+}
 function unlockScroll() {
-  if(heroFinished) return;
+  if (heroFinished) return;
   heroFinished = true;
   document.body.style.overflowY = 'auto';
   whiteSection.classList.add('visible');
@@ -369,126 +396,151 @@ function unlockScroll() {
   clearInterval(autoSlideTimer);
 }
 
-// Lock scroll
-function lockScroll() {
-  if (heroFinished) return;
-  document.body.style.overflowY = 'hidden';
-  showSlide(current);
-}
-
-// Auto-slide
+/* ====== Auto slide (stops when hero finished) ====== */
 function startAutoSlide(){
   autoSlideTimer = setInterval(()=>{
-    if(heroFinished) return;
-    if(current < slides.length - 1) showSlide(current + 1);
+    if (heroFinished) return;
+    if (current < slides.length - 1) showSlide(current + 1);
     else unlockScroll();
   }, slideInterval);
 }
-
 startAutoSlide();
 lockScroll();
 
-// Wheel scroll
+/* ====== Wheel and touch navigation for slides ====== */
 window.addEventListener('wheel', e=>{
-  if(isScrolling || heroFinished) return;
+  if (isScrolling || heroFinished) return;
   isScrolling = true;
   e.preventDefault();
-  if(e.deltaY > 0){
-    if(current < slides.length-1) showSlide(current+1);
+  if (e.deltaY > 0) {
+    if (current < slides.length - 1) showSlide(current + 1);
     else unlockScroll();
-  } else if(e.deltaY < 0){
-    if(current > 0) showSlide(current-1);
+  } else if (e.deltaY < 0) {
+    if (current > 0) showSlide(current - 1);
   }
-  setTimeout(()=>{ isScrolling=false; }, 400);
-},{passive:false});
+  setTimeout(()=> { isScrolling = false; }, 400);
+}, { passive: false });
 
-// Touch
 let touchStartY = 0;
-window.addEventListener('touchstart', e => { if(heroFinished) return; touchStartY = e.touches[0].clientY; });
-window.addEventListener('touchend', e => { if(heroFinished) return; let delta = touchStartY - e.changedTouches[0].clientY; if(Math.abs(delta)>50){ if(delta>0){ if(current<slides.length-1) showSlide(current+1); else unlockScroll(); } else { if(current>0) showSlide(current-1); } } });
+window.addEventListener('touchstart', e => { if(heroFinished) return; touchStartY = e.touches[0].clientY; }, { passive: true });
+window.addEventListener('touchend', e => {
+  if (heroFinished) return;
+  let delta = touchStartY - e.changedTouches[0].clientY;
+  if (Math.abs(delta) > 50) {
+    if (delta > 0) {
+      if (current < slides.length - 1) showSlide(current + 1);
+      else unlockScroll();
+    } else {
+      if (current > 0) showSlide(current - 1);
+    }
+  }
+}, { passive: true });
 
-// Dots click
-dots.forEach(dot => dot.addEventListener('click', ()=>showSlide(parseInt(dot.dataset.index))));
+/* ====== Dots click ====== */
+dots.forEach(dot => dot.addEventListener('click', ()=> showSlide(parseInt(dot.dataset.index))));
 
-// Navbar scroll
-window.addEventListener('scroll', ()=>{ if(window.scrollY>=window.innerHeight) navbar.classList.add('scrolled'); });
-
-// Hamburger
-menuToggle.addEventListener('click', ()=>{
-  navLinks.classList.toggle('show');
-  menuToggle.innerHTML = navLinks.classList.contains('show') ? '&times;' : '&#9776;';
+/* ====== Navbar scroll state to add 'scrolled' class ====== */
+window.addEventListener('scroll', () => {
+  if (window.scrollY >= window.innerHeight) navbar.classList.add('scrolled');
 });
 
-// Close drawer on link click
-document.querySelectorAll('.nav-links a').forEach(link=>{
-  link.addEventListener('click', ()=>{
-    navLinks.classList.remove('show');
-    menuToggle.innerHTML = '&#9776;';
+/* ====== Mobile hamburger ====== */
+if (menuToggle) {
+  menuToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('show');
+    menuToggle.innerHTML = navLinks.classList.contains('show') ? '&times;' : '&#9776;';
+  });
+  // Close drawer when clicking a link
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+      navLinks.classList.remove('show');
+      menuToggle.innerHTML = '&#9776;';
+    });
+  });
+}
+
+/* ====== Robust popup hover behavior: stays open while hovering either icon OR menu ====== */
+document.querySelectorAll('.popup-wrapper').forEach(wrapper => {
+  const btn = wrapper.querySelector('.popup-btn');
+  const menu = wrapper.querySelector('.popup-menu');
+  let hoverTimeout;
+
+  function openMenu() {
+    clearTimeout(hoverTimeout);
+    // mark aria as visible
+    menu.classList.add('show');
+    menu.setAttribute('aria-hidden', 'false');
+  }
+  function closeMenu() {
+    hoverTimeout = setTimeout(() => {
+      menu.classList.remove('show');
+      menu.setAttribute('aria-hidden', 'true');
+    }, 150);
+  }
+
+  btn.addEventListener('mouseenter', openMenu);
+  btn.addEventListener('mouseleave', closeMenu);
+  menu.addEventListener('mouseenter', openMenu);
+  menu.addEventListener('mouseleave', closeMenu);
+
+  // Also support keyboard / focus accessibility:
+  btn.querySelectorAll('a').forEach(a => {
+    a.addEventListener('focus', openMenu);
+    a.addEventListener('blur', closeMenu);
   });
 });
 
-// Popup menus (desktop)
-document.querySelectorAll('.popup-wrapper').forEach(wrapper=>{
-  const btn = wrapper.querySelector('.popup-btn');
-  const menu = wrapper.querySelector('.popup-menu');
-  btn.addEventListener('mouseenter', ()=>{ menu.style.opacity=1; menu.style.pointerEvents='all'; menu.style.transform='translateY(0)'; });
-  btn.addEventListener('mouseleave', ()=>{ menu.style.opacity=0; menu.style.pointerEvents='none'; menu.style.transform='translateY(-20px)'; });
-  menu.addEventListener('mouseenter', ()=>{ menu.style.opacity=1; menu.style.pointerEvents='all'; menu.style.transform='translateY(0)'; });
-  menu.addEventListener('mouseleave', ()=>{ menu.style.opacity=0; menu.style.pointerEvents='none'; menu.style.transform='translateY(-20px)'; });
-});
-
-// Mobile nested popup menu
+/* ====== Mobile nested popup menu (same behavior but created on demand) ====== */
 document.querySelectorAll('.mobile-buttons img').forEach(button => {
   button.addEventListener('click', () => {
-    const menuType = button.alt;
+    const menuType = button.alt || 'Menu';
     let existingMenu = document.querySelector('.mobile-popup-menu');
-    if(existingMenu) existingMenu.remove();
+    if (existingMenu) existingMenu.remove();
 
     const menu = document.createElement('div');
     menu.classList.add('mobile-popup-menu');
+    menu.style.position = 'fixed';
+    menu.style.top = '0';
+    menu.style.left = '0';
+    menu.style.width = '260px';
+    menu.style.height = '100vh';
+    menu.style.background = '#f2f2f7';
+    menu.style.padding = '80px 1.25rem 1.25rem';
+    menu.style.zIndex = 260;
+    menu.style.transition = 'transform 300ms ease';
+    menu.style.transform = 'translateX(-100%)';
 
     const backBtn = document.createElement('div');
-    backBtn.classList.add('back-btn');
     backBtn.textContent = '← Back';
+    backBtn.style.fontSize = '1.1rem';
+    backBtn.style.cursor = 'pointer';
+    backBtn.style.marginBottom = '0.75rem';
+    backBtn.style.color = '#111';
     menu.appendChild(backBtn);
 
     const section = document.createElement('div');
-    section.innerHTML = `<h4>${menuType}</h4>
-      <a href="#"><img src="/icons/app1.png"> App 1</a>
-      <a href="#"><img src="/icons/app2.png"> App 2</a>
-      <a href="#"><img src="/icons/app3.png"> App 3</a>`;
+    section.innerHTML = `<h4 style="margin:0 0 .75rem 0;">${menuType}</h4>
+      <a href="#" style="display:block;padding:.55rem 0;">App 1</a>
+      <a href="#" style="display:block;padding:.55rem 0;">App 2</a>
+      <a href="#" style="display:block;padding:.55rem 0;">App 3</a>`;
     menu.appendChild(section);
 
     document.body.appendChild(menu);
-
-    setTimeout(()=> menu.classList.add('show'), 10);
+    // show
+    setTimeout(()=> menu.style.transform = 'translateX(0)', 10);
 
     backBtn.addEventListener('click', () => {
-      menu.classList.remove('show');
-      setTimeout(()=> menu.remove(), 400);
+      menu.style.transform = 'translateX(-100%)';
+      setTimeout(()=> menu.remove(), 350);
     });
   });
 });
 
- function setVh() {
-  const vh = window.visualViewport
-    ? window.visualViewport.height * 0.01
-    : window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
-
-// Initial calculation
-setVh();
-
-// Recalculate on resize or orientation change
-if (window.visualViewport) {
-  ['resize', 'scroll'].forEach(evt => {
-    window.visualViewport.addEventListener(evt, setVh);
-  });
-}
-
-window.addEventListener('resize', setVh);
-window.addEventListener('orientationchange', setVh);
+/* ====== Ensure initial styles stable on load (in case of slow JS) ====== */
+window.addEventListener('load', () => {
+  // If autoplay videos are blocked, they may still load later; apply fallback check
+  applyVideoFallback();
+});
 </script>
 </body>
 </html>
