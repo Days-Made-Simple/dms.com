@@ -6,7 +6,7 @@
   "routes": [
     {
       "src": "/countify/privacy-policy",
-      "dest": "/public/countify/privacy-policy"
+      "dest": "/public/countify/privacy-policy.html"
     },
     {
       "src": "/(.*\\.(png|jpg|jpeg|gif|svg|ico|webp|css|js|txt))",
